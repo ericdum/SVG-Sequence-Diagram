@@ -1,0 +1,25 @@
+{
+  "name": "SVG-Sequence-Diagram",
+  "version": "0.0.1",
+  "description": "Sequence-Diagram using D3 and SVG. Mostly for Sip Message display.",
+  "main": "package.js",
+  "dependencies": {
+    "grunt": "~0.4.2"
+  },
+  "devDependencies": {
+    "grunt-contrib-uglify": "~0.3.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://garethrylance@github.com/garethrylance/SVG-Sequence-Diagram.git"
+  },
+  "author": "Gareth Rylance",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/garethrylance/SVG-Sequence-Diagram/issues"
+  },
+  "homepage": "https://github.com/garethrylance/SVG-Sequence-Diagram"
+}
