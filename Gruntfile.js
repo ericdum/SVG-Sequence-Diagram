@@ -13,8 +13,7 @@ var banner = '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n
         uglify: {
             options: {
                     banner: banner,
-                    sourceMap:true,
-                    compress:true
+                    beautify:true
                 },
                 build: {
                     src: files,

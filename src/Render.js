@@ -9,6 +9,11 @@ var textMessageOffsetSeparationX = 5;
 var textMessageOffsetSeparationY = 5;
 var textIndent = 5;
 
+var engine = new LayoutEngine();
+
+
+
+
 var devices = [
     {name:"CUCM"},
     {name:"SBC"},
@@ -36,10 +41,6 @@ var findDeviceIndex = function(name,devices)
 }
 
 
-var findDeviceStartPointFromIndex = function(index)
-{
-    return index *deviceSpacing + deviceWidth/2;
-}
 
 var margin = {top: 10, right: 10, bottom: 10, left: 10},
     width = 960 - margin.left - margin.right,
@@ -72,25 +73,25 @@ messages.append("svg:line")
     .attr("stroke","black")
     .attr("marker-end", "url(#arrowhead)")
     .attr("class", "messages")
-    .attr("x1", function(d) {return findDeviceStartPointFromIndex(findDeviceIndex(d.from, devices));})
-    .attr("y1",  function(d,i) {return (messageSeperation*i)+deviceHeight+messageSeperation;})
-    .attr("x2", function(d,i){return  findDeviceStartPointFromIndex(findDeviceIndex(d.to, devices));})
-    .attr("y2", function(d,i) {return (messageSeperation*i)+deviceHeight+messageSeperation;});
+    .attr("x1", function(d) {return engine.findDeviceStartPointFromIndex(findDeviceIndex(d.from, devices));})
+    .attr("y1",  function(d,i) {return engine.getMessageHeight(i);})
+    .attr("x2", function(d,i){return  engine.findDeviceStartPointFromIndex(findDeviceIndex(d.to, devices));})
+    .attr("y2", function(d,i) {return engine.getMessageHeight(i)});
 
 
 messages.append("text")//d3.min(
-    .attr("x", function(d) {return findDeviceStartPointFromIndex(findDeviceIndex(d.from, devices))+textMessageOffsetSeparationX;})
-    .attr("y",  function(d,i) {return (messageSeperation*i)+deviceHeight+messageSeperation-textMessageOffsetSeparationY;})
+    .attr("x", function(d) {return engine.getMessageTextStartXPosition(findDeviceIndex(d.from, devices));})
+    .attr("y",  function(d,i) {return engine.getMessageTextStartYPosition(i);})
     .text( function (d) { return  d.message; });
 
 
-var devices = svg.selectAll(".devices")
+var devicesSVG = svg.selectAll(".devices")
     .data(devices).enter()
     .append("g");
 
 
 
-devices.append("svg:rect")
+devicesSVG.append("svg:rect")
     .attr("x", function(d,i) {return deviceSpacing*i;})
         .attr("y", 0)
         .attr("width",deviceWidth)
@@ -102,14 +103,14 @@ devices.append("svg:rect")
                 return d.name;
             });
 
-devices.append("text")
+devicesSVG.append("text")
             .attr("x", function(d,i) {return (deviceSpacing*i)+textIndent;})
             .attr("y", deviceHeight/2)
             .text( function (d) { return  d.name; });
 
 
 
-devices.append("svg:line")
+devicesSVG.append("svg:line")
     .attr("class", "devices")
     .attr("fill","none")
     .attr("stroke","black")
