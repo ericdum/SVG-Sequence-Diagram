@@ -1,32 +1,24 @@
 /**
  * Created by garethr on 10/12/13.
  */
-var engine = new LayoutEngine();
 
-var devices = [
-    {name:"CUCM"},
-    {name:"SBC"},
-    {name:"FS01"},
-    {name:"CS2K"}
-];
-
-var messages = [
-    {from:"CUCM", to:"SBC",message:"INVITE"},
-    {from:"SBC", to:"FS01",message:"INVITE"},
-    {from:"FS01", to:"SBC",message:"INVITE"},
-    {from:"SBC", to:"CS2K",message:"INVITE"}
-];
-
-var findDeviceIndex = function(name,devices)
-{
-    for (var i = 0; i < devices.length; i++) {
-        var device = devices[i];
-        if (device.name === name ) {
-            return i;
-        }
+var engine = new LayoutEngine({
+                devices : [
+                {name:"CUCM"},
+                {name:"SBC"},
+                {name:"FS01"},
+                {name:"CS2K"}
+            ],
+                messages : [
+                {from:"CUCM", to:"SBC",message:"INVITE"},
+                {from:"SBC", to:"FS01",message:"INVITE"},
+                {from:"FS01", to:"SBC",message:"INVITE"},
+                {from:"SBC", to:"CS2K",message:"INVITE"}
+            ]
     }
-    return -1;
-};
+);
+
+
 
 
 
@@ -54,27 +46,27 @@ svg.append("defs").append("marker")
 
 
 var messages =svg.selectAll(".messages")
-    .data(messages).enter()
+    .data(engine.getMessages()).enter()
     .append('g');
 
 messages.append("svg:line")
     .attr("stroke","black")
     .attr("marker-end", "url(#arrowhead)")
     .attr("class", "messages")
-    .attr("x1", function(d) {return engine.getMiddleXOfDevice(findDeviceIndex(d.from, devices));})
+    .attr("x1", function(d) {return engine.getMiddleXOfDeviceFromName(d.from);})
     .attr("y1",  function(d,i) {return engine.getMessageHeight(i);})
-    .attr("x2", function(d){return  engine.getMiddleXOfDevice(findDeviceIndex(d.to, devices));})
+    .attr("x2", function(d){return  engine.getMiddleXOfDeviceFromName(d.to);})
     .attr("y2", function(d,i) {return engine.getMessageHeight(i);});
 
 
 messages.append("text")//d3.min(
-    .attr("x", function(d) {return engine.getMessageTextStartXPosition(findDeviceIndex(d.to, devices),findDeviceIndex(d.from, devices));})
+    .attr("x", function(d) {return engine.getMessageTextStartXPositionFromNames(d.to,d.from);})
     .attr("y",  function(d,i) {return engine.getMessageTextStartYPosition(i);})
     .text( function (d) { return  d.message; });
 
 
 var devicesSVG = svg.selectAll(".devices")
-    .data(devices).enter()
+    .data(engine.getDevices()).enter()
     .append("g");
 
 

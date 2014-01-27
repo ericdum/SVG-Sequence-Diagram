@@ -4,16 +4,46 @@
 
 var LayoutEngine = (function () {
 
-    function LayoutEngine() {
-        this.deviceWidth = 100;
+    function LayoutEngine(flow) {
+        this.deviceWidth = 150;
         this.deviceHeight = 50;
-        this.deviceSpacing = this.deviceWidth + 50;
+        this.deviceSpacing = this.deviceWidth + 100;
         this.messageSeperation = 40;
         this.textMessageOffsetSeparationX = 5;
         this.textMessageOffsetSeparationY = 5;
         this.textIndent = 5;
 
+        this.flow = flow;
+
     }
+
+    LayoutEngine.prototype.findDeviceIndexFromName = function(name)
+    {
+        var devices = this.getDevices();
+
+        for (var i = 0; i < devices.length; i++) {
+            var device = devices[i];
+            if (device.name === name ) {
+                return i;
+            }
+        }
+        return -1;
+    };
+
+    LayoutEngine.prototype.getDevices = function () {
+        return this.flow.devices;
+    };
+
+
+    LayoutEngine.prototype.getMessages = function () {
+        return this.flow.messages;
+    };
+    LayoutEngine.prototype.getMiddleXOfDeviceFromName = function (deviceName) {
+        return this.getMiddleXOfDevice(this.findDeviceIndexFromName(deviceName));
+    };
+
+
+
     LayoutEngine.prototype.getMiddleXOfDevice = function (deviceIndex) {
         return deviceIndex *this.deviceSpacing + this.deviceWidth/2;
     };
@@ -23,10 +53,10 @@ var LayoutEngine = (function () {
         return (this.messageSeperation*messageIndex)+this.deviceHeight+this.messageSeperation;
     };
 
-    LayoutEngine.prototype.getMessageTextStartXPosition = function (toDeviceIndex,fromDeviceIndex) {
+    LayoutEngine.prototype.getMessageTextStartXPositionFromNames = function (toDevice,fromDevice) {
 
-        var toDeviceStart = this.getMiddleXOfDevice(toDeviceIndex);
-        var fromDeviceStart = this.getMiddleXOfDevice(fromDeviceIndex);
+        var toDeviceStart = this.getMiddleXOfDevice(this.findDeviceIndexFromName(toDevice));
+        var fromDeviceStart = this.getMiddleXOfDevice(this.findDeviceIndexFromName(fromDevice));
         if(toDeviceStart< fromDeviceStart )
         {
             return toDeviceStart+this.textMessageOffsetSeparationX;
