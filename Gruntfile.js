@@ -28,7 +28,8 @@ var jsFiles = 'src/**/*.js';
         uglify: {
             options: {
                     banner: banner,
-                    beautify:true
+                    sourceMap:true,
+                    compress:true
                 },
                 build: {
                     src: files,

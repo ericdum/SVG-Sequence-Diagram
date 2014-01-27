@@ -1,18 +1,7 @@
 /**
  * Created by garethr on 10/12/13.
  */
-var deviceWidth = 100;
-var deviceHeight = 50;
-var deviceSpacing = deviceWidth + 50;
-var messageSeperation = 40;
-var textMessageOffsetSeparationX = 5;
-var textMessageOffsetSeparationY = 5;
-var textIndent = 5;
-
 var engine = new LayoutEngine();
-
-
-
 
 var devices = [
     {name:"CUCM"},
@@ -36,19 +25,18 @@ var findDeviceIndex = function(name,devices)
             return i;
         }
     }
-
     return -1;
 };
 
 
 
 var margin = {top: 10, right: 10, bottom: 10, left: 10},
-    width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+    viewWidth = 960 - margin.left - margin.right,
+    viewHeight = 500 - margin.top - margin.bottom;
 
 var svg = d3.select("body").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
+    .attr("width", viewWidth + margin.left + margin.right)
+    .attr("height", viewHeight + margin.top + margin.bottom)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -73,14 +61,14 @@ messages.append("svg:line")
     .attr("stroke","black")
     .attr("marker-end", "url(#arrowhead)")
     .attr("class", "messages")
-    .attr("x1", function(d) {return engine.findDeviceStartPointFromIndex(findDeviceIndex(d.from, devices));})
+    .attr("x1", function(d) {return engine.getMiddleXOfDevice(findDeviceIndex(d.from, devices));})
     .attr("y1",  function(d,i) {return engine.getMessageHeight(i);})
-    .attr("x2", function(d,i){return  engine.findDeviceStartPointFromIndex(findDeviceIndex(d.to, devices));})
+    .attr("x2", function(d){return  engine.getMiddleXOfDevice(findDeviceIndex(d.to, devices));})
     .attr("y2", function(d,i) {return engine.getMessageHeight(i);});
 
 
 messages.append("text")//d3.min(
-    .attr("x", function(d) {return engine.getMessageTextStartXPosition(findDeviceIndex(d.from, devices));})
+    .attr("x", function(d) {return engine.getMessageTextStartXPosition(findDeviceIndex(d.to, devices),findDeviceIndex(d.from, devices));})
     .attr("y",  function(d,i) {return engine.getMessageTextStartYPosition(i);})
     .text( function (d) { return  d.message; });
 
@@ -91,31 +79,32 @@ var devicesSVG = svg.selectAll(".devices")
 
 
 
+
 devicesSVG.append("svg:rect")
-    .attr("x", function(d,i) {return deviceSpacing*i;})
+    .attr("x",    function(d,i) {return engine.getDeviceXPosition(i);})
         .attr("y", 0)
-        .attr("width",deviceWidth)
+        .attr("width",engine.deviceWidth)
         .attr("fill","none")
         .attr("stroke","black")
-        .attr("height", deviceHeight)
+        .attr("height", engine.deviceHeight)
         .attr("class", "devices")
         .text(function(d) {
                 return d.name;
             });
 
 devicesSVG.append("text")
-            .attr("x", function(d,i) {return (deviceSpacing*i)+textIndent;})
-            .attr("y", deviceHeight/2)
+            .attr("x", function(d,i) {return engine.getDeviceTextX(i);})
+            .attr("y", engine.getDeviceTextY())
             .text( function (d) { return  d.name; });
 
 devicesSVG.append("svg:line")
     .attr("class", "devices")
     .attr("fill","none")
     .attr("stroke","black")
-    .attr("x1", function(d,i) {return deviceSpacing*i+(deviceWidth/2);})
-    .attr("y1", deviceHeight)
-    .attr("x2", function(d,i) {return deviceSpacing*i+(deviceWidth/2);})
-    .attr("y2", height);
+    .attr("x1", function(d,deviceIndex) {return engine.getMiddleXOfDevice(deviceIndex);})
+    .attr("y1", engine.deviceHeight)
+    .attr("x2", function(d,deviceIndex) {return engine.getMiddleXOfDevice(deviceIndex);})
+    .attr("y2", viewHeight);
 
 
 
