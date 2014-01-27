@@ -31,14 +31,14 @@ var messages = [
 var findDeviceIndex = function(name,devices)
 {
     for (var i = 0; i < devices.length; i++) {
-        var device = devices[i]
-        if (device.name == name ) {
+        var device = devices[i];
+        if (device.name === name ) {
             return i;
         }
     }
 
     return -1;
-}
+};
 
 
 
@@ -76,7 +76,7 @@ messages.append("svg:line")
     .attr("x1", function(d) {return engine.findDeviceStartPointFromIndex(findDeviceIndex(d.from, devices));})
     .attr("y1",  function(d,i) {return engine.getMessageHeight(i);})
     .attr("x2", function(d,i){return  engine.findDeviceStartPointFromIndex(findDeviceIndex(d.to, devices));})
-    .attr("y2", function(d,i) {return engine.getMessageHeight(i)});
+    .attr("y2", function(d,i) {return engine.getMessageHeight(i);});
 
 
 messages.append("text")//d3.min(
@@ -107,8 +107,6 @@ devicesSVG.append("text")
             .attr("x", function(d,i) {return (deviceSpacing*i)+textIndent;})
             .attr("y", deviceHeight/2)
             .text( function (d) { return  d.name; });
-
-
 
 devicesSVG.append("svg:line")
     .attr("class", "devices")

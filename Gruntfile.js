@@ -6,10 +6,25 @@ var files = [
 ];
 
 var banner = '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n';
+var jsFiles = 'src/**/*.js';
+
 
     // Project configuration.
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+        jshint: {
+            options: {
+                curly: true,
+                eqeqeq: true,
+                eqnull: true,
+                browser: true,
+                es3:true,
+                strict:false
+            },
+            files: [
+                jsFiles,
+                'Gruntfile.js' ]
+        },
         uglify: {
             options: {
                     banner: banner,
@@ -19,13 +34,26 @@ var banner = '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n
                     src: files,
                     dest: 'build/Sequence.min.js'
                 }
-            }
+            },
+        watch: {
+            files: [
+                jsFiles,
+                'Gruntfile.js'
+            ],
+            tasks: [
+                'build'
+            ]
+        }
     });
 
     // Load the plugin that provides the "uglify" task.
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-watch');
 
-    // Default task(s).
-    grunt.registerTask('default', ['uglify']);
+    grunt.loadNpmTasks('grunt-contrib-jshint');
+
+
+    grunt.registerTask('build', ['jshint','uglify']);
+    grunt.registerTask('default', ['build']);
 
 };
