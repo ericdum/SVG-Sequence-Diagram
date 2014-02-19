@@ -4,7 +4,7 @@
 
 var LayoutEngine = (function () {
 
-    function LayoutEngine(flow) {
+    function LayoutEngine() {
         this.deviceWidth = 150;
         this.deviceHeight = 50;
         this.deviceSpacing = this.deviceWidth + 100;
@@ -13,7 +13,9 @@ var LayoutEngine = (function () {
         this.textMessageOffsetSeparationY = 5;
         this.textIndent = 5;
 
-        this.flow = flow;
+        this.devices = [];
+        this.messages = [];
+
 
     }
 
@@ -31,12 +33,26 @@ var LayoutEngine = (function () {
     };
 
     LayoutEngine.prototype.getDevices = function () {
-        return this.flow.devices;
+        return this.devices;
+    };
+
+
+
+    LayoutEngine.prototype.generateDevices = function () {
+        var allDevices = [];
+        _.forEach(this.messages, (function(message) { allDevices.push({name:message.from}) ;allDevices.push({name:message.to}) ; }));
+
+        this.devices = _.uniq(allDevices, 'name');
+    };
+
+    LayoutEngine.prototype.addMessages = function (newMessages) {
+        this.messages =this.messages.concat(newMessages);
+        this.generateDevices();
     };
 
 
     LayoutEngine.prototype.getMessages = function () {
-        return this.flow.messages;
+        return this.messages;
     };
     LayoutEngine.prototype.getMiddleXOfDeviceFromName = function (deviceName) {
         return this.getMiddleXOfDevice(this.findDeviceIndexFromName(deviceName));

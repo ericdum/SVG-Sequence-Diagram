@@ -2,7 +2,8 @@ module.exports = function(grunt) {
 
 var files = [
     'src/LayoutEngine.js',
-    'src/Render.js'
+    'src/Render.js',
+    'src/app.js'
 ];
 
 var banner = '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n';
@@ -29,7 +30,7 @@ var jsFiles = 'src/**/*.js';
             options: {
                     banner: banner,
                     sourceMap:true,
-                    compress:true
+                    compress:false
                 },
                 build: {
                     src: files,

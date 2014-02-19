@@ -2,101 +2,99 @@
  * Created by garethr on 10/12/13.
  */
 
-var engine = new LayoutEngine({
-                devices : [
-                {name:"CUCM"},
-                {name:"SBC"},
-                {name:"FS01"},
-                {name:"CS2K"}
-            ],
-                messages : [
-                {from:"CUCM", to:"SBC",message:"INVITE"},
-                {from:"SBC", to:"FS01",message:"INVITE"},
-                {from:"FS01", to:"SBC",message:"INVITE"},
-                {from:"SBC", to:"CS2K",message:"INVITE"}
-            ]
+var RenderEngine = (function () {
+
+    function RenderEngine(layoutEngine) {
+        this.margin = {top: 10, right: 10, bottom: 10, left: 10};
+        this.viewWidth = 960 - this.margin.left - this.margin.right;
+        this.viewHeight = 500 - this.margin.top - this.margin.bottom;
+
+
+        this.layoutEngine = layoutEngine;
+
     }
-);
+
+    RenderEngine.prototype.Init = function()
+    {
+        var that = this;
+
+        this.svg = d3.select("body").append("svg")
+            .attr("width", that.viewWidth + that.margin.left + that.margin.right)
+            .attr("height", that.viewHeight + that.margin.top + that.margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + that.margin.left + "," + that.margin.top + ")");
+
+        this.svg.append("defs").append("marker")
+            .attr("id", "arrowhead")
+            .attr("refX", 5)
+            .attr("refY", 5)
+            .attr("markerUnits", "strokeWidth")
+            .attr("markerWidth", 50)
+            .attr("markerHeight", 30)
+            .attr("orient", "auto")
+            .append("path")
+            .attr("d", "M 0 0 L 5 5 L 0 10 z");
+    };
 
 
+    RenderEngine.prototype.Draw = function()
+    {
+        var that = this;
+
+        this.messages =this.svg.selectAll(".messages")
+            .data(that.layoutEngine.getMessages()).enter()
+            .append('g');
+
+        this.messages.append("svg:line")
+            .attr("stroke","black")
+            .attr("marker-end", "url(#arrowhead)")
+            .attr("class", "messages")
+            .attr("x1", function(d) {return  that.layoutEngine.getMiddleXOfDeviceFromName(d.from);})
+            .attr("y1",  function(d,i) {return that.layoutEngine.getMessageHeight(i);})
+            .attr("x2", function(d){return  that.layoutEngine.getMiddleXOfDeviceFromName(d.to);})
+            .attr("y2", function(d,i) {return that.layoutEngine.getMessageHeight(i);});
 
 
-
-var margin = {top: 10, right: 10, bottom: 10, left: 10},
-    viewWidth = 960 - margin.left - margin.right,
-    viewHeight = 500 - margin.top - margin.bottom;
-
-var svg = d3.select("body").append("svg")
-    .attr("width", viewWidth + margin.left + margin.right)
-    .attr("height", viewHeight + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-svg.append("defs").append("marker")
-    .attr("id", "arrowhead")
-    .attr("refX", 5)
-    .attr("refY", 5)
-    .attr("markerUnits", "strokeWidth")
-    .attr("markerWidth", 50)
-    .attr("markerHeight", 30)
-    .attr("orient", "auto")
-    .append("path")
-    .attr("d", "M 0 0 L 5 5 L 0 10 z");
+        this.messages.append("text")
+            .attr("x", function(d) {return that.layoutEngine.getMessageTextStartXPositionFromNames(d.to,d.from);})
+            .attr("y",  function(d,i) {return that.layoutEngine.getMessageTextStartYPosition(i);})
+            .text( function (d) { return  d.message; });
 
 
-
-var messages =svg.selectAll(".messages")
-    .data(engine.getMessages()).enter()
-    .append('g');
-
-messages.append("svg:line")
-    .attr("stroke","black")
-    .attr("marker-end", "url(#arrowhead)")
-    .attr("class", "messages")
-    .attr("x1", function(d) {return engine.getMiddleXOfDeviceFromName(d.from);})
-    .attr("y1",  function(d,i) {return engine.getMessageHeight(i);})
-    .attr("x2", function(d){return  engine.getMiddleXOfDeviceFromName(d.to);})
-    .attr("y2", function(d,i) {return engine.getMessageHeight(i);});
+        this.devicesSVG = this.svg.selectAll(".devices")
+            .data(this.layoutEngine.getDevices()).enter()
+            .append("g");
 
 
-messages.append("text")//d3.min(
-    .attr("x", function(d) {return engine.getMessageTextStartXPositionFromNames(d.to,d.from);})
-    .attr("y",  function(d,i) {return engine.getMessageTextStartYPosition(i);})
-    .text( function (d) { return  d.message; });
-
-
-var devicesSVG = svg.selectAll(".devices")
-    .data(engine.getDevices()).enter()
-    .append("g");
-
-
-
-
-devicesSVG.append("svg:rect")
-    .attr("x",    function(d,i) {return engine.getDeviceXPosition(i);})
-        .attr("y", 0)
-        .attr("width",engine.deviceWidth)
-        .attr("fill","none")
-        .attr("stroke","black")
-        .attr("height", engine.deviceHeight)
-        .attr("class", "devices")
-        .text(function(d) {
+        this.devicesSVG.append("svg:rect")
+            .attr("x",    function(d,i) {return that.layoutEngine.getDeviceXPosition(i);})
+            .attr("y", 0)
+            .attr("width",that.layoutEngine.deviceWidth)
+            .attr("fill","none")
+            .attr("stroke","black")
+            .attr("height", that.layoutEngine.deviceHeight)
+            .attr("class", "devices")
+            .text(function(d) {
                 return d.name;
             });
 
-devicesSVG.append("text")
-            .attr("x", function(d,i) {return engine.getDeviceTextX(i);})
-            .attr("y", engine.getDeviceTextY())
+
+        this.devicesSVG.append("text")
+            .attr("x", function(d,i) {return that.layoutEngine.getDeviceTextX(i);})
+            .attr("y", that.layoutEngine.getDeviceTextY())
             .text( function (d) { return  d.name; });
 
-devicesSVG.append("svg:line")
-    .attr("class", "devices")
-    .attr("fill","none")
-    .attr("stroke","black")
-    .attr("x1", function(d,deviceIndex) {return engine.getMiddleXOfDevice(deviceIndex);})
-    .attr("y1", engine.deviceHeight)
-    .attr("x2", function(d,deviceIndex) {return engine.getMiddleXOfDevice(deviceIndex);})
-    .attr("y2", viewHeight);
+        this.devicesSVG.append("svg:line")
+            .attr("class", "devices")
+            .attr("fill","none")
+            .attr("stroke","black")
+            .attr("x1", function(d,deviceIndex) {return that.layoutEngine.getMiddleXOfDevice(deviceIndex);})
+            .attr("y1", that.layoutEngine.deviceHeight)
+            .attr("x2", function(d,deviceIndex) {return that.layoutEngine.getMiddleXOfDevice(deviceIndex);})
+            .attr("y2", that.viewHeight);
+
+    };
 
 
-
+    return RenderEngine;
+})();
