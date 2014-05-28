@@ -58,6 +58,23 @@ var LayoutEngine = (function () {
         return this.getMiddleXOfDevice(this.findDeviceIndexFromName(deviceName));
     };
 
+    LayoutEngine.prototype.getLengthBetweenDevicesByName = function (deviceNameFrom, deviceNameTo) {
+        return (this.findDeviceIndexFromName(deviceNameTo) - this.findDeviceIndexFromName(deviceNameFrom)) * this.deviceSpacing;
+    };
+
+    LayoutEngine.prototype.getOffsetLengthBetweenDevicesByName  = function (deviceNameFrom, deviceNameTo) {
+
+        var length =  this.getLengthBetweenDevicesByName(deviceNameFrom,deviceNameTo);
+        var offest =  this.deviceSpacing/3;
+
+       if(length > 0 )
+       {
+           return length - offest;
+       }else
+       {
+           return length +  offest;
+       }
+    };
 
 
     LayoutEngine.prototype.getMiddleXOfDevice = function (deviceIndex) {

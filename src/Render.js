@@ -42,55 +42,62 @@ var RenderEngine = (function () {
         var that = this;
 
         this.messages =this.svg.selectAll(".messages")
-            .data(that.layoutEngine.getMessages()).enter()
-            .append('g');
+            .data(that.layoutEngine.getMessages());
 
-        this.messages.append("svg:line")
+
+        this.messageGroupEnter = this.messages.enter()
+            .append('g')
+            .attr("class", "messages")
+            .attr("transform",  function(d,i) { return "translate(" + that.layoutEngine.getMiddleXOfDeviceFromName(d.from) + ","+that.layoutEngine.getMessageHeight(i)+")";});
+
+        this.messageGroupEnter.append("svg:line")
             .attr("stroke","black")
             .attr("marker-end", "url(#arrowhead)")
-            .attr("class", "messages")
-            .attr("x1", function(d) {return  that.layoutEngine.getMiddleXOfDeviceFromName(d.from);})
-            .attr("y1",  function(d,i) {return that.layoutEngine.getMessageHeight(i);})
-            .attr("x2", function(d){return  that.layoutEngine.getMiddleXOfDeviceFromName(d.to);})
-            .attr("y2", function(d,i) {return that.layoutEngine.getMessageHeight(i);});
+            .attr("x1", 0)
+            .attr("y1",  0)
+            .attr("x2",  function(d,i) { return  that.layoutEngine.getLengthBetweenDevicesByName(d.from, d.to);})
+            .attr("y2",0);
 
 
-        this.messages.append("text")
-            .attr("x", function(d) {return that.layoutEngine.getMessageTextStartXPositionFromNames(d.to,d.from);})
-            .attr("y",  function(d,i) {return that.layoutEngine.getMessageTextStartYPosition(i);})
+        this.messageGroupEnter.append("text")
+            .attr("x", function(d,i) { return  that.layoutEngine.getOffsetLengthBetweenDevicesByName(d.from, d.to);})
+            .attr("y",  function(d,i) {return -5;})
             .text( function (d) { return  d.message; });
 
 
         this.devicesSVG = this.svg.selectAll(".devices")
-            .data(this.layoutEngine.getDevices()).enter()
-            .append("g");
+            .data(this.layoutEngine.getDevices());
 
 
-        this.devicesSVG.append("svg:rect")
-            .attr("x",    function(d,i) {return that.layoutEngine.getDeviceXPosition(i);})
-            .attr("y", 0)
+        this.devicesSVGEnterGroup =  this.devicesSVG.enter()
+            .append("g")
+            .attr("class", "devices")
+            .attr("transform",  function(d,i) { return "translate(" + that.layoutEngine.getDeviceXPosition(i) + ",0)";});
+
+
+        this.devicesSVGEnterGroup.append("svg:rect")
             .attr("width",that.layoutEngine.deviceWidth)
             .attr("fill","none")
             .attr("stroke","black")
             .attr("height", that.layoutEngine.deviceHeight)
-            .attr("class", "devices")
             .text(function(d) {
                 return d.name;
             });
 
 
-        this.devicesSVG.append("text")
-            .attr("x", function(d,i) {return that.layoutEngine.getDeviceTextX(i);})
-            .attr("y", that.layoutEngine.getDeviceTextY())
+        this.devicesSVGEnterGroup.append("text")
+            .attr("x", that.layoutEngine.deviceWidth/2)
+            .attr("y", that.layoutEngine.deviceHeight/2)
+            .attr("text-anchor", "middle")
+            .attr("dominant-baseline", "central")
             .text( function (d) { return  d.name; });
 
-        this.devicesSVG.append("svg:line")
-            .attr("class", "devices")
+        this.devicesSVGEnterGroup.append("svg:line")
             .attr("fill","none")
             .attr("stroke","black")
-            .attr("x1", function(d,deviceIndex) {return that.layoutEngine.getMiddleXOfDevice(deviceIndex);})
+            .attr("x1", function(d,deviceIndex) {return that.layoutEngine.deviceWidth/2;})
             .attr("y1", that.layoutEngine.deviceHeight)
-            .attr("x2", function(d,deviceIndex) {return that.layoutEngine.getMiddleXOfDevice(deviceIndex);})
+            .attr("x2", function(d,deviceIndex) {return that.layoutEngine.deviceWidth/2;})
             .attr("y2", that.viewHeight);
 
     };
